@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chainbase Leaderboard Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    .container {
+      background: #1c1c1c;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    h1 { text-align: center; font-size: 24px; margin-bottom: 10px; }
+    p { text-align: center; color: #ccc; margin-bottom: 20px; }
+    textarea {
+      width: 100%; height: 150px; font-family: monospace;
+      font-size: 14px; padding: 10px; margin-bottom: 15px;
+      border-radius: 8px; border: none; resize: vertical;
+    }
+    button {
+      background: #00c6ff; color: black; font-weight: bold;
+      border: none; padding: 10px 20px; border-radius: 8px;
+      cursor: pointer; width: 100%; font-size: 16px;
+    }
+    .result-card {
+      background: #292929; padding: 12px 18px; border-radius: 8px;
+      margin-bottom: 10px; display: flex; justify-content: space-between;
+    }
+    .rank { font-weight: bold; color: gold; margin-right: 10px; }
+    .wallet { font-family: monospace; font-size: 13px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .points { font-weight: bold; color: #00ffae; }
+    @media (max-width: 500px) {
+      .result-card { flex-direction: column; align-items: flex-start; }
+      .wallet { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chainbase Leaderboard Checker</h1>
+    <p>Paste your wallet address below to check your Zircon points and rank.</p>
+    <textarea id="wallets" placeholder="Enter wallet addresses, one per line..."></textarea>
+    <button onclick="checkLeaderboard()" id="checkBtn">Check Leaderboard</button>
+    <div id="results" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    async function checkLeaderboard() {
+      const textarea = document.getElementById('wallets');
+      const resultsDiv = document.getElementById('results');
+      const checkBtn = document.getElementById('checkBtn');
+      const wallets = textarea.value.trim().split('\n').filter(Boolean);
+
+      if (wallets.length === 0) {
+        alert('Please enter at least one wallet address.');
+        return;
+      }
+
+      checkBtn.disabled = true;
+      resultsDiv.innerHTML = '<p>Checking...</p>';
+
+      try {
+        const res = await fetch('https://your-railway-url.up.railway.app/api/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wallets })
+        });
+
+        const data = await res.json();
+        const sorted = data.sort((a, b) => b.points - a.points);
+
+        resultsDiv.innerHTML = sorted.map((x, i) => `
+          <div class="result-card">
+            <div><span class="rank">#${i + 1}</span> <span class="wallet">${x.wallet}</span></div>
+            <div class="points">${x.points} Zircon</div>
+          </div>
+        `).join('');
+
+      } catch (e) {
+        console.error(e);
+        resultsDiv.innerHTML = `<p style="color:red;">❌ Error fetching data. Backend might be offline.</p>`;
+      }
+
+      checkBtn.disabled = false;
+    }
+  </script>
+</body>
+</html>
