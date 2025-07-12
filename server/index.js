@@ -1,38 +1,31 @@
-// server/index.js
 const express = require('express');
-const puppeteer = require('puppeteer');
 const cors = require('cors');
-const app = express();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-async function getZircon(wallet) {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-  const page = await browser.newPage();
-  await page.goto('https://genesis.chainbase.com', { waitUntil: 'networkidle2' });
-
-  await page.evaluate(addr => localStorage.setItem('walletAddress', addr), wallet);
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(3000);
-
-  const text = await page.$eval(
-    'div.flex.items-center.gap-2.text-xl.font-semibold.text-white',
-    el => el.innerText
-  );
-  await browser.close();
-  return parseInt(text.replace(/\D/g, '')) || 0;
-}
-
 app.post('/api/check', async (req, res) => {
-  const wallets = req.body.wallets || [];
-  const results = [];
-  for (const w of wallets) {
-    const pts = await getZircon(w);
-    results.push({ wallet: w, points: pts });
+  const wallets = req.body.wallets;
+
+  if (!Array.isArray(wallets)) {
+    return res.status(400).json({ error: 'Invalid wallet list.' });
   }
+
+  // Fake leaderboard data for testing
+  const leaderboard = [
+    { wallet: '0x123...', points: 900 },
+    { wallet: '0x456...', points: 750 },
+    { wallet: '0x789...', points: 500 },
+  ];
+
+  // Match only those in leaderboard
+  const results = leaderboard
+    .filter(entry => wallets.includes(entry.wallet))
+    .map(entry => ({ wallet: entry.wallet, points: entry.points }));
+
   res.json(results);
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log('Listening on port', port));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
