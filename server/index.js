@@ -12,14 +12,13 @@ app.post('/api/check', async (req, res) => {
     return res.status(400).json({ error: 'Invalid wallet list.' });
   }
 
-  // Fake leaderboard data for testing
+  // Replace this with real data logic if needed
   const leaderboard = [
     { wallet: '0x123...', points: 900 },
     { wallet: '0x456...', points: 750 },
-    { wallet: '0x789...', points: 500 },
+    { wallet: '0x789...', points: 500 }
   ];
 
-  // Match only those in leaderboard
   const results = leaderboard
     .filter(entry => wallets.includes(entry.wallet))
     .map(entry => ({ wallet: entry.wallet, points: entry.points }));
@@ -28,4 +27,4 @@ app.post('/api/check', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
