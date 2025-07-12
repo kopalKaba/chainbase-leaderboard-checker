@@ -12,7 +12,6 @@ app.post('/api/check', async (req, res) => {
     return res.status(400).json({ error: 'Invalid wallet list.' });
   }
 
-  // Replace this with real data logic if needed
   const leaderboard = [
     { wallet: '0x123...', points: 900 },
     { wallet: '0x456...', points: 750 },
