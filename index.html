@@ -73,7 +73,7 @@
       resultsDiv.innerHTML = '<p>Checking...</p>';
 
       try {
-        const res = await fetch('https://your-railway-url.up.railway.app/api/check', {
+        const res = await fetch('https://chainbase-leaderboard-checker-production.up.railway.app/api/check', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wallets })
